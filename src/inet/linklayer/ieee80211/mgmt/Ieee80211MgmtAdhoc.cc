@@ -33,6 +33,7 @@ void Ieee80211MgmtAdhoc::initialize(int stage)
     bool f1 = par("freqListLocal_1").boolValue();
     bool f2 = par("freqListLocal_2").boolValue();
     freqUsingLocal = par("freqUsingLocal");
+    attackStartTime = par("attackStartTime");
     freqListLocal[0] = f0;
     freqListLocal[1] = f1;
     freqListLocal[2] = f2;
@@ -44,8 +45,11 @@ void Ieee80211MgmtAdhoc::initialize(int stage)
     // @myd
     clkmsg = new cMessage("CLK_MSG");
     clkmsg->setKind(FREQ_HOP_MSG);
+    attcmsg = new cMessage("ATTACK_START");
+    attcmsg->setKind(ATTACK_START);
     delay = 1.0;
 
+    scheduleAt(attackStartTime, attcmsg);
 }
 
 void Ieee80211MgmtAdhoc::handleTimer(cMessage *msg)
@@ -56,6 +60,9 @@ void Ieee80211MgmtAdhoc::handleTimer(cMessage *msg)
         //TODO  frequency hopping operation! @myd
         EV << "can not receive any msg for a certain time, the old frequency may be attacked, ao hop to a new one according to dict." << endl;
         freqUsingLocal = 2;
+    }
+    if(msg->getKind() == ATTACK_START){
+        freqListLocal[0] = 1;
     }
 }
 

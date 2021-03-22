@@ -58,11 +58,15 @@ class INET_API Ieee80211MgmtAdhoc : public Ieee80211MgmtBase
 
     simtime_t t_lastpkt; // in func of decap()
     cMessage* clkmsg; //self-message to control frequency-hopping
+    cMessage* attcmsg;
     double delay;
     enum {
-      FREQ_HOP_MSG
+      FREQ_HOP_MSG,
+      ATTACK_START
     };
     int freqUsingLocal;
+
+    double attackStartTime;
 
     /** @name Processing of different frame types */
     //@{

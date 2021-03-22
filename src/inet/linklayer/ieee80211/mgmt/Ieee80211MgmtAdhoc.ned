@@ -44,6 +44,8 @@ simple Ieee80211MgmtAdhoc like IIeee80211Mgmt
         
         int freqUsingLocal = default(0);
         
+        double attackStartTime @unit("s");
+        
         @display("i=block/cogwheel");
     gates:
         input upperLayerIn;
