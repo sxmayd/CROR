@@ -44,7 +44,7 @@ simple Ieee80211MgmtAdhoc like IIeee80211Mgmt
         
         int freqUsingLocal = default(0);
         
-        double attackStartTime @unit("s");
+        double attackStartTime @unit("s") = default(10000s);
         
         @display("i=block/cogwheel");
     gates:

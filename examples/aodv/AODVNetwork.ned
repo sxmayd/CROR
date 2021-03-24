@@ -24,13 +24,14 @@ import inet.networklayer.ipv4.RoutingTableRecorder;
 import inet.node.aodv.AODVRouter;
 import inet.physicallayer.idealradio.IdealRadioMedium;
 
+import inet.physicallayer.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
 
 network AODVNetwork
 {
     parameters:
         int numHosts;
     submodules:
-        radioMedium: IdealRadioMedium {
+        radioMedium: Ieee80211ScalarRadioMedium {
             parameters:
                 @display("p=50,50");
         }
