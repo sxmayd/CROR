@@ -47,7 +47,7 @@ void Ieee80211MgmtAdhoc::initialize(int stage)
     clkmsg->setKind(FREQ_HOP_MSG);
     attcmsg = new cMessage("ATTACK_START");
     attcmsg->setKind(ATTACK_START);
-    delay = 1.0;
+    delay = 10;
 
     scheduleAt(attackStartTime, attcmsg);
 }
