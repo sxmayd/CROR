@@ -17,6 +17,12 @@
 
 #include "inet/linklayer/ieee80211/mgmt/Ieee80211MgmtAdhoc.h"
 #include "inet/linklayer/common/Ieee802Ctrl.h"
+#include "inet/networklayer/ipv4/IPv4Datagram.h"
+#include "inet/networklayer/arp/ipv4/ARPPacket_m.h"
+
+#include <algorithm>
+#include "time.h"
+#include <random>
 
 namespace inet {
 
@@ -29,9 +35,9 @@ void Ieee80211MgmtAdhoc::initialize(int stage)
     Ieee80211MgmtBase::initialize(stage);
 
     // Local frequency initialize
-    bool f0 = par("freqListLocal_0").boolValue();
-    bool f1 = par("freqListLocal_1").boolValue();
-    bool f2 = par("freqListLocal_2").boolValue();
+    int f0 = par("freqListLocal_0").intValue();
+    int f1 = par("freqListLocal_1").intValue();
+    int f2 = par("freqListLocal_2").intValue();
     freqUsingLocal = par("freqUsingLocal");
     attackStartTime = par("attackStartTime");
     freqListLocal[0] = f0;
@@ -42,14 +48,23 @@ void Ieee80211MgmtAdhoc::initialize(int stage)
     WATCH(freqListLocal[2]);
     WATCH(freqUsingLocal);
 
+
+
     // @myd
     clkmsg = new cMessage("CLK_MSG");
     clkmsg->setKind(FREQ_HOP_MSG);
     attcmsg = new cMessage("ATTACK_START");
     attcmsg->setKind(ATTACK_START);
-    delay = 10;
+    delay = 31;
 
     scheduleAt(attackStartTime, attcmsg);
+}
+
+void Ieee80211MgmtAdhoc::finish()
+{
+    // record statistics
+    recordScalar("Recover Time", recoverTime);
+    recordScalar("Attack start Time", attackStartTime);
 }
 
 void Ieee80211MgmtAdhoc::handleTimer(cMessage *msg)
@@ -60,6 +75,7 @@ void Ieee80211MgmtAdhoc::handleTimer(cMessage *msg)
         //TODO  frequency hopping operation! @myd
         EV << "can not receive any msg for a certain time, the old frequency may be attacked, ao hop to a new one according to dict." << endl;
         freqUsingLocal = 2;
+        recoverTime = simTime();
     }
     if(msg->getKind() == ATTACK_START){
         freqListLocal[0] = 1;
@@ -94,8 +110,16 @@ Ieee80211DataFrame *Ieee80211MgmtAdhoc::encapsulate(cPacket *msg)
     }
 
     // to check if the frequency using now is attacked, if true, hop the frequency @myd
-    if(freqListLocal[freqUsingLocal] == true){
-        freqUsingLocal = 2;
+    if(freqListLocal[freqUsingLocal] == 1){
+        if(freqListLocal[2] == 1){
+            freqUsingLocal = 1; // two times hopping
+            EV << "-----------------------------------------two times hopping------------------------------------" << endl;
+        }
+        else{
+            freqUsingLocal = 2; // one time hopping
+            EV << "-----------------------------------------one time hopping------------------------------------" << endl;
+        }
+
     }
 
     frame->setFreq_using(freqUsingLocal);
@@ -148,19 +172,42 @@ cPacket *Ieee80211MgmtAdhoc::decapsulate(Ieee80211DataFrame *frame)
 
 void Ieee80211MgmtAdhoc::handleDataFrame(Ieee80211DataFrame *frame)
 {
+    MACAddress frameDestAddr = frame->getReceiverAddress();
+    MACAddress frameSrcAddr = frame->getTransmitterAddress();
+    MACAddress host_0_Addr(intAddr);
+    IPv4Address host_0_ipAddr("145.236.0.1");
+
+
     cPacket* payload;
     payload = decapsulate(frame);
+
+    IPv4Address srcAddr;
+
     if(!payload){
         //TODO nothing
     }
     if(payload){
-        if(clkmsg->isScheduled())
-            cancelEvent(clkmsg);
 
-        // to get current simulation time (aka. the time of last pkt arrive) @myd
-        t_lastpkt = simTime();
+        // Assume that the area of host[0] is attacked @myd
+        if(dynamic_cast<ARPPacket *>(payload)){
+            auto ipv4frame = dynamic_cast<ARPPacket *>(payload);
+            srcAddr = ipv4frame->getSrcIPAddress();
+        }
+        else{
+            auto ipv4frame_ = dynamic_cast<IPv4Datagram *>(payload);
+            srcAddr = ipv4frame_->getSrcAddress();
+        }
 
-        scheduleAt(t_lastpkt + 2 * delay, clkmsg);
+         if(srcAddr == host_0_ipAddr){
+             if(clkmsg->isScheduled()){
+                 cancelEvent(clkmsg);
+             }
+
+             // to get current simulation time (aka. the time of last pkt arrive) @myd
+             t_lastpkt = simTime();
+             scheduleAt(t_lastpkt + delay, clkmsg);
+             EV << "==============================================Set host0 Alarm===============================" << endl;
+         }
 
         sendUp(payload);
     }

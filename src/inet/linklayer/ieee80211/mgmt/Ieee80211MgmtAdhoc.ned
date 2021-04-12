@@ -38,9 +38,9 @@ simple Ieee80211MgmtAdhoc like IIeee80211Mgmt
         int freqNum = default(3);
         
         //frequency list availiable or not
-        bool freqListLocal_0 = default(false);
-        bool freqListLocal_1 = default(false);
-        bool freqListLocal_2 = default(false);
+        int freqListLocal_0 = default(0);
+        int freqListLocal_1 = default(0);
+        int freqListLocal_2 = default(intuniform(1, 2) - 1);
         
         int freqUsingLocal = default(0);
         

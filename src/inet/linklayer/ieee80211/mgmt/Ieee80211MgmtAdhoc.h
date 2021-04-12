@@ -54,7 +54,7 @@ class INET_API Ieee80211MgmtAdhoc : public Ieee80211MgmtBase
     virtual cPacket *decapsulate(Ieee80211DataFrame *frame);
 
     // Self-define: maintain the availability of the global frequency @myd
-    bool freqListLocal[freqNum];
+    int freqListLocal[freqNum];
 
     simtime_t t_lastpkt; // in func of decap()
     cMessage* clkmsg; //self-message to control frequency-hopping
@@ -67,6 +67,10 @@ class INET_API Ieee80211MgmtAdhoc : public Ieee80211MgmtBase
     int freqUsingLocal;
 
     double attackStartTime;
+
+    uint64 intAddr = 0x0AAA00000000ULL + (1 & 0xffffffffUL);
+
+    simtime_t recoverTime;
 
     /** @name Processing of different frame types */
     //@{
@@ -81,6 +85,7 @@ class INET_API Ieee80211MgmtAdhoc : public Ieee80211MgmtBase
     virtual void handleBeaconFrame(Ieee80211BeaconFrame *frame) override;
     virtual void handleProbeRequestFrame(Ieee80211ProbeRequestFrame *frame) override;
     virtual void handleProbeResponseFrame(Ieee80211ProbeResponseFrame *frame) override;
+    virtual void finish() override;
     //@}
 };
 
