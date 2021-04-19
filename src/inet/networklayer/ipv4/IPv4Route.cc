@@ -106,6 +106,23 @@ IRoutingTable *IPv4Route::getRoutingTableAsGeneric() const
     return getRoutingTable();
 }
 
+IPv4Address IPv4Route::getGateway() const
+{
+    if (dynamic_cast<AODVRouteData *>(protocolData)) {
+        AODVRouteData *data = (AODVRouteData *)protocolData;
+        std::set<L3Address> precursorList = data->getPrecursorList();
+        L3Address gw = L3Address(gateway);
+        precursorList.insert(gw);
+        if(!precursorList.empty() && dest != gateway){
+            auto it = precursorList.begin();
+            advance(it, rand() % precursorList.size());
+            const IPv4Address gateway_ = (*it).toIPv4();
+            return gateway_;
+        }
+    }
+    return gateway;
+}
+
 IPv4MulticastRoute::~IPv4MulticastRoute()
 {
     delete inInterface;
@@ -183,6 +200,7 @@ IRoutingTable *IPv4MulticastRoute::getRoutingTableAsGeneric() const
 {
     return getRoutingTable();
 }
+
 
 void IPv4MulticastRoute::addOutInterface(OutInterface *outInterface)
 {

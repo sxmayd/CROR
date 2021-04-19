@@ -21,12 +21,14 @@
 #include "inet/common/INETDefs.h"
 
 #include "inet/networklayer/contract/ipv4/IPv4Address.h"
+#include "inet/networklayer/common/L3Address.h"
 #include "inet/networklayer/contract/IRoute.h"
 
 namespace inet {
 
 class InterfaceEntry;
 class IIPv4RoutingTable;
+class L3Address;
 
 /**
  * IPv4 unicast route in IIPv4RoutingTable.
@@ -108,7 +110,8 @@ class INET_API IPv4Route : public cObject, public IRoute
     IPv4Address getNetmask() const { return netmask; }
 
     /** Next hop address */
-    IPv4Address getGateway() const { return gateway; }
+    IPv4Address getGateway() const;
+
 
     /** Next hop interface */
     InterfaceEntry *getInterface() const override { return interfacePtr; }
