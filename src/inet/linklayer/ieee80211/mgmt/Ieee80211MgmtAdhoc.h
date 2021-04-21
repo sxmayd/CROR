@@ -62,9 +62,11 @@ class INET_API Ieee80211MgmtAdhoc : public Ieee80211MgmtBase
     double delay;
     enum {
       FREQ_HOP_MSG,
-      ATTACK_START
+      ATTACK_START,
     };
     int freqUsingLocal;
+
+    bool link;
 
     double attackStartTime;
 

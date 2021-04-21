@@ -108,18 +108,18 @@ IRoutingTable *IPv4Route::getRoutingTableAsGeneric() const
 
 IPv4Address IPv4Route::getGateway() const
 {
-    if (dynamic_cast<AODVRouteData *>(protocolData) && dest != gateway && metric > 3) {
-        AODVRouteData *data = (AODVRouteData *)protocolData;
-        std::set<L3Address> precursorList = data->getPrecursorList();
-        L3Address gw = L3Address(gateway);
-        precursorList.insert(gw);
-        if(!precursorList.empty()){
-            auto it = precursorList.begin();
-            advance(it, rand() % precursorList.size());
-            const IPv4Address gateway_ = (*it).toIPv4();
-            return gateway_;
-        }
-    }
+//    if (dynamic_cast<AODVRouteData *>(protocolData) && dest != gateway && metric > 3) {
+//        AODVRouteData *data = (AODVRouteData *)protocolData;
+//        std::set<L3Address> precursorList = data->getPrecursorList();
+//        L3Address gw = L3Address(gateway);
+//        precursorList.insert(gw);
+//        if(!precursorList.empty()){
+//            auto it = precursorList.begin();
+//            advance(it, rand() % precursorList.size());
+//            const IPv4Address gateway_ = (*it).toIPv4();
+//            return gateway_;
+//        }
+//    }
     return gateway;
 }
 

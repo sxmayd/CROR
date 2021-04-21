@@ -56,6 +56,7 @@ void Ieee80211MgmtAdhoc::initialize(int stage)
     attcmsg = new cMessage("ATTACK_START");
     attcmsg->setKind(ATTACK_START);
     delay = 31;
+    link = true;
 
     scheduleAt(attackStartTime, attcmsg);
 }
@@ -74,7 +75,8 @@ void Ieee80211MgmtAdhoc::handleTimer(cMessage *msg)
         EV << "--------------------------------------------Timer Out------------------------------------------" << endl;
         //TODO  frequency hopping operation! @myd
         EV << "can not receive any msg for a certain time, the old frequency may be attacked, ao hop to a new one according to dict." << endl;
-        freqUsingLocal = 2;
+        //freqUsingLocal = 2;
+        link = false;
         recoverTime = simTime();
     }
     if(msg->getKind() == ATTACK_START){
@@ -154,7 +156,7 @@ cPacket *Ieee80211MgmtAdhoc::decapsulate(Ieee80211DataFrame *frame)
 
 
     // TODO to check if the frequency of the pkt using is same to local frequency @myd
-    if(frame->getFreq_using() != freqUsingLocal){
+    if(frame->getFreq_using() != freqUsingLocal || link == false){
         // drop the pkt(aka. not receive the pkt)
         EV << "frequency is been attacked(aka. transmitter has hop the frequency), drop the pkt----------------------------------------------" << endl;
         return NULL;
