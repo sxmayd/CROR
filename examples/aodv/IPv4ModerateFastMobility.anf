@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
+  <inputs>
+    <inputs name="/inet/examples/aodv/results/IPv4ModerateFastMobility-*.vec"/>
+    <inputs name="/inet/examples/aodv/results/IPv4ModerateFastMobility-*.sca"/>
+  </inputs>
+  <datasets>
+    <datasets name="PktLossRate">
+      <items xsi:type="scave:Add" filterPattern="module( *.pingApp[*]) AND name(&quot;ping loss rate (%)&quot;) AND &quot;reception *&quot; AND (N == 30)"/>
+      <items xsi:type="scave:Add" filterPattern="name( L)"/>
+      <items xsi:type="scave:ComputeScalar" scalarName="avgPingLossRate" valueExpr="mean(&quot;ping loss rate (%)&quot;)" moduleExpr="Network" groupByExpr="" averageReplications="true"/>
+      <items xsi:type="scave:BarChart" name="average ping loss rate">
+        <filters xsi:type="scave:Select" filterPattern="name(&quot;avgPingLossRate&quot;)"/>
+      </items>
+    </datasets>
+  </datasets>
+  <chartSheets>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.3"/>
+  </chartSheets>
+</scave:Analysis>
